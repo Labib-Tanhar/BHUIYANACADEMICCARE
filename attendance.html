@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BAC Admin</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali&display=swap" rel="stylesheet" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script type="importmap">
+        {
+            "imports": {
+                "@material/web/": "https://esm.run/@material/web/"
+            }
+        }
+    </script>
+    <script type="module">
+        import "@material/web/all.js";
+        import {
+            styles as typescaleStyles
+        } from '@material/web/typography/md-typescale-styles.js';
+        document.adoptedStyleSheets.push(typescaleStyles.styleSheet);
+    </script>
+<style>
+    :root {
+        --md-outlined-button-container-shape: 0px;
+        --md-outlined-button-label-text-font: system-ui;
+        --md-sys-color-primary: #323200;
+        --md-sys-color-secondary: #e6e4c0;
+        --md-sys-color-outline: #e6e4c0;
+        --md-sys-color-surface: #f2f0e0;
+        /* Second lightest as body background */
+        --md-sys-color-on-surface: #323200;
+        /* Darkest color for text */
+        --md-sys-color-surface-variant: #e6e4c0;
+        /* Lightest for cards */
+        --md-sys-color-on-surface-variant: #323200;
+        /*Darkest for cards */
+        --md-sys-color-inverse-surface: #323200;
+        /* Darkest for text */
+        --md-sys-color-on-inverse-surface: #f2f0e0;
+        --md-sys-color-primary-container: #e6e4c0;
+        --md-sys-color-on-primary-container: #323200;
+        --md-dialog-container-color: var(--md-sys-color-surface-variant);
+        --md-dialog-headline-color: var(--md-sys-color-on-surface);
+        --md-dialog-content-color: var(--md-sys-color-on-surface);
+        --md-dialog-scrim-color: rgba(50, 50, 0, 0.1);
+        --md-fab-container-color: var(--md-sys-color-secondary);
+        --md-fab-label-text-color: var(--md-sys-color-primary);
+
+
+    }
+
+    body {
+        font-family: "Noto Sans Bengali",
+            sans-serif;
+        margin: 20px;
+        display: flex;
+        overflow-x: hidden;
+        font-weight: bold;
+        color: var(--md-sys-color-on-surface);
+        position: relative;
+        background-color: var(--md-sys-color-surface);
+        /* Required for absolute positioning of navbar */
+    }
+
+    .nav-container {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+    }
+
+    .nav-rail {
+        background: #e6e4c0;
+        /* Use the lightest color as base */
+        padding: 12px;
+        border-radius: 25px;
+        display: flex;
+        gap: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+            0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        backdrop-filter: blur(8px);
+    }
+
+    .nav-item {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--md-sys-color-surface);
+        /* Use the next lightest color for the item base */
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .nav-item:hover {
+        background-color: rgba(246, 247, 125, 0.9);
+        /* Use the third color for hover */
+    }
+
+    .nav-item:active {
+        background-color: #d0d0d0;
+        /* Still use a grey when active, not specified */
+    }
+
+    .main-content {
+        flex: 1;
+        padding: 20px;
+        box-sizing: border-box;
+        margin-top: 60px;
+        /* Added margin-top */
+    }
+
+    .main-content h1 {
+        font-size: 2rem;
+        font-weight: 500;
+        margin-bottom: 20px;
+        color: var(--md-sys-color-on-surface);
+        /* Darkest color for text */
+    }
+
+    .present {
+        background-color: #c6efce;
+    }
+
+    .absent {
+        background-color: #ffc7ce;
+    }
+
+    .late {
+        background-color: #ffeb9c;
+        cursor: pointer;
+    }
+
+    .leave {
+        background-color: #ffcc99;
+    }
+
+    .club {
+        background-color: #ddebf7;
+        /* Light gray color */
+    }
+
+    table {
+        border-collapse: separate;
+        width: 100%;
+        border-radius: 8px;
+        margin-top: 20px;
+        border-spacing: 0;
+        border: 1px solid var(--md-sys-color-surface-variant);
+        /* Border color from the palette */
+        overflow: hidden;
+        background-color: var(--md-sys-color-surface);
+    }
+
+    th,
+    td {
+        padding: 12px 16px;
+        text-align: center;
+        border-bottom: 1px solid var(--md-sys-color-surface-variant);
+        /* Light grey border */
+        border-right: 1px solid var(--md-sys-color-surface-variant);
+        /* Add right border to all cells */
+        font-weight: 700;
+        color: var(--md-sys-color-on-surface);
+        /* Darkest color for text */
+    }
+
+    th:last-child,
+    td:last-child {
+        border-right: none;
+        /* Remove right border from last cell */
+    }
+
+    th {
+        font-weight: 500;
+        background-color: var(--md-sys-color-surface-variant);
+        color: var(--md-sys-color-on-surface);
+        /* Darkest color for text */
+
+    }
+
+
+    tr:hover {
+        background-color: rgba(50, 50, 0, 0.04);
+        /* Light olive background on hover */
+    }
+
+    .md-elevation-3 {
+        box-shadow: 0px 3px 5px -1px rgba(50, 50, 0, 0.2),
+            0px 6px 10px 0px rgba(50, 50, 0, 0.14),
+            0px 1px 18px 0px rgba(50, 50, 0, 0.12) !important;
+    }
+
+    .md-elevation-1 {
+        box-shadow: 0px 2px 1px -1px rgba(50, 50, 0, 0.2),
+            0px 1px 1px 0px rgba(50, 50, 0, 0.14),
+            0px 1px 3px 0px rgba(50, 50, 0, 0.12) !important;
+    }
+
+    input {
+        border: 1px solid var(--md-sys-color-surface-variant);
+        border-radius: 4px;
+        padding: 8px;
+        box-sizing: border-box;
+        background-color: var(--md-sys-color-surface);
+        color: var(--md-sys-color-on-surface);
+    }
+
+    #controls {
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        background-color: var(--md-sys-color-surface);
+    }
+
+    .md-dialog {
+
+    }
+
+    .md-dialog[open] {
+        display: block;
+    }
+
+
+    .student-name {
+        cursor: pointer;
+        color: var(--md-sys-color-on-surface);
+    }
+
+    .fab-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 100;
+
+    }
+
+    #dataLoadContainer {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        gap: 10px;
+
+    }
+
+    @media print {
+
+        body * {
+            visibility: hidden;
+        }
+
+        .main-content,
+        .main-content * {
+            visibility: visible;
+            margin: 0;
+        }
+
+        body {
+            background-color: white !important;
+            -webkit-print-color-adjust: exact;
+        }
+
+        .fab-container {
+            display: none;
+        }
+    }
+
+    md-outlined-text-field {
+        margin-bottom: 12px; /* Add space below each input */
+         display: block;
+    }
+</style>
+</head>
+
+<body>
+    <div class="nav-container">
+        <nav class="nav-rail">
+            <a href="/users.html">
+                <md-icon-button class="nav-item" aria-label="Navigation item 1">
+                    <span class="material-symbols-rounded">home</span>
+                </md-icon-button>
+            </a>
+            <a href="/teachers.html">
+                <md-icon-button class="nav-item" aria-label="Navigation item 2">
+                    <span class="material-symbols-rounded">supervised_user_circle</span>
+                </md-icon-button>
+            </a>
+            <a href="/fees.html">
+                <md-icon-button class="nav-item" aria-label="Navigation item 3">
+                    <span class="material-symbols-rounded">checkbook</span>
+                </md-icon-button>
+            </a>
+            <a href="/attendance.html">
+                <md-icon-button class="nav-item" aria-label="Navigation item 4">
+                    <span class="material-symbols-rounded">calendar_apps_script</span>
+                </md-icon-button>
+            </a>
+            <a href="#">
+                <md-icon-button class="nav-item" aria-label="Navigation item 5">
+                    <span class="material-symbols-rounded">note_stack</span>
+                </md-icon-button>
+            </a>
+            <a href="#">
+                <md-icon-button class="nav-item" aria-label="Navigation item 6">
+                    <span class="material-symbols-rounded">note</span>
+                </md-icon-button>
+            </a>
+            <a href="#">
+                <md-icon-button class="nav-item" aria-label="Navigation item 7">
+                    <span class="material-symbols-rounded">info</span>
+                </md-icon-button>
+            </a>
+        </nav>        
+    </div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <div id="controls">
+            <md-icon-button id="prevBtn" aria-label="Previous Month">
+                <span class="material-symbols-rounded">keyboard_arrow_left</span>
+            </md-icon-button>
+            <md-icon-button id="nextBtn" aria-label="Next Month">
+                <span class="material-symbols-rounded">keyboard_arrow_right</span>
+            </md-icon-button>
+        </div>
+         <div id="dataLoadContainer">
+         <p id="monthYear" class="md-typescale-body-large"></p>
+          </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>1</th>
+                        <th>2</th>
+                        <th>3</th>
+                        <th>4</th>
+                        <th>5</th>
+                        <th>6</th>
+                        <th>7</th>
+                        <th>8</th>
+                        <th>9</th>
+                        <th>10</th>
+                        <th>11</th>
+                        <th>12</th>
+                        <th>13</th>
+                        <th>14</th>
+                        <th>15</th>
+                        <th>16</th>
+                        <th>17</th>
+                        <th>18</th>
+                        <th>19</th>
+                        <th>20</th>
+                        <th>21</th>
+                        <th>22</th>
+                        <th>23</th>
+                        <th>24</th>
+                        <th>25</th>
+                        <th>26</th>
+                        <th>27</th>
+                        <th>28</th>
+                        <th>29</th>
+                        <th>30</th>
+                        <th>31</th>
+                    </tr>
+                </thead>
+                <tbody id="calendarBody"></tbody>
+            </table>
+        </div>
+        <md-dialog id="attendanceDialog" style="max-width: 320px;">
+            <div slot="headline" id="dialogHeadline"></div>
+            <div slot="content" id="attendanceSummary"></div>
+            <div slot="actions">
+                <md-text-button id="closeAttendanceDialog">Close</md-text-button>
+            </div>
+        </md-dialog>
+        <md-dialog id="lateDialog" style="max-width: 320px;">
+             <div slot="headline">Late Minutes</div>
+            <div slot="content" id="lateSummary"></div>
+            <div slot="actions">
+                <md-text-button id="closeLateDialog">Close</md-text-button>
+            </div>
+        </md-dialog>
+          <div class="fab-container">
+               <md-fab aria-label="Print"  id="printButton">
+                 <span class="material-symbols-rounded" slot="icon">print</span>
+              </md-fab>
+            <md-fab aria-label="Search" id="open-search-dialog">
+                <span class="material-symbols-rounded" slot="icon">search</span>
+            </md-fab>
+        </div>
+        <md-dialog id="searchDialog" style="max-width: 320px;">
+            <div slot="headline">Class Filter</div>
+            <form id="search-form" slot="content" method="dialog">
+                <md-outlined-text-field type="text" id="classInput" label="Class" required></md-outlined-text-field>
+                <md-outlined-text-field type="text" id="sectionInput" label="Section" required></md-outlined-text-field>
+            </form>
+            <div slot="actions">
+                <md-text-button form="search-form" value="cancel">Cancel</md-text-button>
+                <md-filled-button form="search-form" value="search" autofocus>Search</md-filled-button>
+            </div>
+        </md-dialog>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+        var firebaseConfig = {
+            apiKey: "AIzaSyBaaIPOyxTYNZCi4FnRH3EO7o99kOr3wd8",
+            authDomain: "bhuiyanacademiccare.firebaseapp.com",
+            projectId: "bhuiyanacademiccare",
+            storageBucket: "bhuiyanacademiccare.appspot.com",
+            messagingSenderId: "966548238156",
+            appId: "1:966548238156:web:7b6d298511ec59b67169e9",
+            measurementId: "G-0XKS1KDYKP"
+        };
+        firebase.initializeApp(firebaseConfig);
+        var db = firebase.firestore();
+        var classInput = document.getElementById("classInput");
+        var sectionInput = document.getElementById("sectionInput");
+        var prevBtn = document.getElementById("prevBtn");
+        var nextBtn = document.getElementById("nextBtn");
+        var monthYearLabel = document.getElementById('monthYear');
+        var currentYear = new Date().getFullYear();
+        var currentMonth = new Date().getMonth();
+        let selectedStudentId = null;
+          let selectedDate = null;
+        var studentsData = [];
+        const attendanceDialog = document.getElementById('attendanceDialog');
+        const closeAttendanceDialogButton = document.getElementById('closeAttendanceDialog');
+          const lateDialog = document.getElementById('lateDialog');
+        const lateSummary = document.getElementById('lateSummary');
+          const closeLateDialog = document.getElementById('closeLateDialog');
+        const printButton = document.getElementById('printButton');
+            const searchDialog = document.getElementById('searchDialog');
+        const openSearchDialogButton = document.getElementById('open-search-dialog');
+          openSearchDialogButton.addEventListener('click', () => {
+              searchDialog.show();
+          });
+         searchDialog.addEventListener('close', (event) => {
+              if (event.target.returnValue === 'search') {
+                  loadClassData(classInput.value, sectionInput.value);
+              }
+          });
+        closeAttendanceDialogButton.addEventListener('click', () => {
+            attendanceDialog.close();
+        });
+         closeLateDialog.addEventListener('click', () => {
+            lateDialog.close();
+        });
+         printButton.addEventListener('click', () => {
+             window.print();
+         });
+
+
+        class Calendar {
+            constructor(year, month) {
+                this.year = year;
+                this.month = month;
+                this.daysInMonth = new Date(year, month + 1, 0).getDate();
+                this.firstDay = new Date(year, month, 1).getDay();
+            }
+             generateCalendarBody() {
+        document.getElementById("calendarBody").innerHTML = "";
+        studentsData.forEach((student) => {
+          const row = document.createElement("tr");
+          const nameCell = document.createElement("td");
+            nameCell.innerHTML = `<span class="student-name"  onclick="showAttendanceSummary('${student.id}')">${student.name}</span>`;
+          row.appendChild(nameCell);
+           for (let date = 1; date <= this.daysInMonth; date++) {
+                 const cell = document.createElement("td");
+                    cell.onclick = () => {
+                    if(student.attendance[date] === "L"){
+                            selectedStudentId = student.id;
+                            selectedDate = date;
+                            showLateMinutes();
+                        }
+                    };
+                 if (student.attendance[date] === 'P') {
+                     cell.classList.add("present");
+                    cell.textContent = 'P';
+                } else if (student.attendance[date] === 'A') {
+                     cell.classList.add("absent");
+                    cell.textContent = 'A';
+                }  else if (student.attendance[date] === 'LE') {
+                     cell.classList.add("leave");
+                    cell.textContent = 'LE';
+               } else if (student.attendance[date] === 'L') {
+                   cell.classList.add("late");
+                    cell.textContent = 'L';
+                }
+                 else if (student.attendance[date] === 'C') {
+                   cell.classList.add("club");
+                    cell.textContent = 'C';
+                }
+                row.appendChild(cell);
+          }
+           document.getElementById("calendarBody").appendChild(row);
+      });
+    }
+        }
+
+        function generateCalendar(year, month) {
+            const calendar = new Calendar(year, month);
+            const monthName = new Date(year, month, 1).toLocaleDateString('en-US', {
+                month: 'long'
+            });
+            monthYearLabel.textContent = `${monthName} ${year}`;
+            calendar.generateCalendarBody();
+        }
+      function showAttendanceSummary(studentId) {
+            const student = studentsData.find(student => student.id === studentId);
+            const dialogHeadline = document.getElementById('dialogHeadline');
+            const attendanceSummary = document.getElementById('attendanceSummary');
+            dialogHeadline.textContent = `${student.name}'s Attendance Summary`;
+            let presentDays = 0;
+            let absentDays = 0;
+             let leaveDays = 0;
+            let lateDays = 0;
+            let clubDays = 0;
+            let totalLateMinutes = 0;
+            for (const day in student.attendance) {
+                 if (student.attendance[day] === 'P') {
+                      presentDays++;
+                 } else if (student.attendance[day] === 'A') {
+                       absentDays++;
+                 } else if (student.attendance[day] === 'LE') {
+                       leaveDays++;
+                 }
+                 else if (student.attendance[day] === 'L') {
+                      lateDays++;
+                     if(student.lateMinutes[day]) totalLateMinutes += parseInt(student.lateMinutes[day]);
+                 }
+                  else if (student.attendance[day] === 'C') {
+                       clubDays++;
+                 }
+            }
+           attendanceSummary.innerHTML = `
+               <p>Present Days: ${presentDays}</p>
+                 <p>Absent Days: ${absentDays}</p>
+                 <p>Leave Days: ${leaveDays}</p>
+                <p>Late Days: ${lateDays}</p>
+                <p>Total Late Minutes: ${totalLateMinutes}</p>
+                <p>Club Days: ${clubDays}</p>
+            `;
+            attendanceDialog.show();
+        }
+          function showLateMinutes() {
+              const student = studentsData.find(student => student.id === selectedStudentId);
+             const minutes = student.lateMinutes[selectedDate];
+              lateSummary.innerHTML = `<p>Late Minutes: ${minutes}</p>`;
+             lateDialog.show();
+         }
+         function loadClassData(targetClass, targetSection) {
+            studentsData = [];
+            var promises = [];
+            db.collection("users").where("class", "==", targetClass).where("section", "==", targetSection).get().then((snapshot) => {
+                snapshot.forEach((doc) => {
+                    var studentData = {
+                        id: doc.id,
+                        name: doc.data().name,
+                        attendance: {},
+                        lateMinutes: {}
+                    };
+                    studentsData.push(studentData);
+                    promises.push(db.collection("users").doc(doc.id).collection("presences").where("date", ">=", new Date(currentYear, currentMonth, 1)).where("date", "<=", new Date(currentYear, currentMonth + 1, 0)).get().then((presenceSnapshot) => {
+                        presenceSnapshot.forEach((presenceDoc) => {
+                            var date = presenceDoc.data().date.toDate().getDate();
+                            studentData.attendance[date] = 'P';
+                        });
+                    }));
+                    promises.push(db.collection("users").doc(doc.id).collection("absences").where("date", ">=", new Date(currentYear, currentMonth, 1)).where("date", "<=", new Date(currentYear, currentMonth + 1, 0)).get().then((absenceSnapshot) => {
+                        absenceSnapshot.forEach((absenceDoc) => {
+                            var date = absenceDoc.data().date.toDate().getDate();
+                            studentData.attendance[date] = 'A';
+                        });
+                    }));
+                    promises.push(db.collection("users").doc(doc.id).collection("leaves").where("date", ">=", new Date(currentYear, currentMonth, 1)).where("date", "<=", new Date(currentYear, currentMonth + 1, 0)).get().then((leaveSnapshot) => {
+                        leaveSnapshot.forEach((leaveDoc) => {
+                            var date = leaveDoc.data().date.toDate().getDate();
+                           studentData.attendance[date] = 'LE';
+                        });
+                    }));
+                     promises.push(db.collection("users").doc(doc.id).collection("clubs").where("date", ">=", new Date(currentYear, currentMonth, 1)).where("date", "<=", new Date(currentYear, currentMonth + 1, 0)).get().then((clubSnapshot) => {
+                        clubSnapshot.forEach((clubDoc) => {
+                            var date = clubDoc.data().date.toDate().getDate();
+                             studentData.attendance[date] = 'C';
+                        });
+                    }));
+                     promises.push(db.collection("users").doc(doc.id).collection("lates").where("date", ">=", new Date(currentYear, currentMonth, 1)).where("date", "<=", new Date(currentYear, currentMonth + 1, 0)).get().then((lateSnapshot) => {
+                            lateSnapshot.forEach((lateDoc) => {
+                                const lateDate = lateDoc.data().date.toDate();
+                                const day = lateDate.getDate();
+                                 studentData.attendance[day] = 'L';
+                                studentData.lateMinutes[day] = lateDoc.data().minutes;
+                        });
+                    }));
+                });
+                return Promise.all(promises);
+            }).then(() => {
+                generateCalendar(currentYear, currentMonth);
+            }).catch((error) => {
+                console.error("Error loading class data:", error);
+            });
+        }
+        prevBtn.addEventListener("click", function () {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+             loadClassData(classInput.value, sectionInput.value);
+        });
+        nextBtn.addEventListener("click", function () {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+           loadClassData(classInput.value, sectionInput.value);
+        });
+    </script>
+</body>
+
+</html>
