@@ -1,0 +1,810 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Material Design Form Dialogue</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "@material/web/": "https://esm.run/@material/web/"
+            }
+        }
+    </script>
+    <script type="module">
+        import '@material/web/all.js';
+        import {
+            styles as typescaleStyles
+        } from '@material/web/typography/md-typescale-styles.js';
+        document.adoptedStyleSheets.push(typescaleStyles.styleSheet);
+    </script>
+    <style>
+        :root {
+            --md-outlined-button-container-shape: 0px;
+            --md-outlined-button-label-text-font: system-ui;
+            --md-sys-color-primary: #323200;
+            --md-sys-color-secondary: #e6e4c0;
+            --md-sys-color-outline: #e6e4c0;
+            --md-sys-color-surface: #f2f0e0;
+            /* Second lightest as body background */
+            --md-sys-color-on-surface: #323200;
+            /* Darkest color for text */
+            --md-sys-color-surface-variant: #e6e4c0;
+            /* Lightest for cards */
+            --md-sys-color-on-surface-variant: #323200;
+            /*Darkest for cards */
+            --md-sys-color-inverse-surface: #323200;
+            /* Darkest for text */
+            --md-sys-color-on-inverse-surface: #f2f0e0;
+            --md-sys-color-primary-container: #e6e4c0;
+            --md-sys-color-on-primary-container: #323200;
+            --md-dialog-container-color: var(--md-sys-color-surface-variant);
+            --md-dialog-headline-color: var(--md-sys-color-on-surface);
+            --md-dialog-content-color: var(--md-sys-color-on-surface);
+            --md-dialog-scrim-color: rgba(50, 50, 0, 0.1);
+            --md-fab-container-color: var(--md-sys-color-secondary);
+            --md-fab-label-text-color: var(--md-sys-color-primary);
+
+
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+             margin: 20px;
+            display: flex;
+           overflow-x: hidden;
+            font-weight: 400;
+            color: var(--md-sys-color-on-surface);
+            position: relative;
+            background-color: var(--md-sys-color-surface);
+
+        }
+         .nav-container {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+
+        .nav-rail {
+            background: #e6e4c0;
+            /* Use the lightest color as base */
+            padding: 12px;
+            border-radius: 25px;
+            display: flex;
+            gap: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            backdrop-filter: blur(8px);
+        }
+
+        .nav-item {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--md-sys-color-surface);
+            /* Use the next lightest color for the item base */
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(246, 247, 125, 0.9);
+            /* Use the third color for hover */
+        }
+
+        .nav-item:active {
+            background-color: #d0d0d0;
+            /* Still use a grey when active, not specified */
+        }
+          .main-content {
+                flex: 1;
+                padding: 20px;
+                box-sizing: border-box;
+                  margin-top: 60px; /* Added margin-top */
+
+            }
+           .main-content h1,
+        .main-content h2,
+        .main-content table,
+        .main-content form,
+        .md-dialog h2,
+        .md-dialog div {
+            color: var(--md-sys-color-on-surface);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            border: 1px solid var(--md-sys-color-surface-variant);
+            border-radius: 4px;
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            font-weight: 400;
+             background-color: var(--md-sys-color-surface);
+            color: var(--md-sys-color-on-surface);
+
+        }
+
+        button {
+             background-color: var(--md-sys-color-secondary);
+             color: var(--md-sys-color-primary);
+            border: none;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+
+        .action-icons {
+            flex-direction: row;
+            align-items: center;
+            gap: 5px;
+
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 10px;
+            z-index: 1000;
+            border-radius: 8px;
+        }
+
+        .overlay.active,
+        .popup.active {
+            display: block;
+        }
+
+
+
+        .dialogue-wrapper {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dialogue {
+           background: var(--md-sys-color-surface-variant);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+            width: 300px;
+              color: var(--md-sys-color-on-surface);
+        }
+
+        .dialogue form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .dialogue-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .dialogue form md-outlined-text-field {
+            width: 100%;
+            font-weight: 400;
+             color: var(--md-sys-color-on-surface);
+            /* Make text fields fill the width */
+        }
+
+        .fab-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+            /* Ensure the fabs are above other content */
+        }
+
+        .md-elevation-3 {
+            box-shadow: 0px 3px 5px -1px rgba(50, 50, 0, 0.2), 0px 6px 10px 0px rgba(50, 50, 0, 0.14), 0px 1px 18px 0px rgba(50, 50, 0, 0.12) !important;
+        }
+
+        .md-elevation-1 {
+            box-shadow: 0px 2px 1px -1px rgba(50, 50, 0, 0.2), 0px 1px 1px 0px rgba(50, 50, 0, 0.14), 0px 1px 3px 0px rgba(50, 50, 0, 0.12) !important;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            margin-top: 20px;
+            border-spacing: 0;
+             border: 1px solid var(--md-sys-color-surface-variant);
+            /* Table border */
+            border-radius: 8px;
+            /* Table border radius */
+            overflow: hidden;
+            background-color: var(--md-sys-color-surface);
+
+        }
+
+        th,
+        td {
+            padding: 12px 16px;
+            text-align: left;
+             border-bottom: 1px solid var(--md-sys-color-surface-variant);
+            /* Light grey border */
+             border-right: 1px solid var(--md-sys-color-surface-variant);
+            /* Add right border to all cells */
+            font-weight: 700;
+             color: var(--md-sys-color-on-surface);
+        }
+
+        th:last-child,
+        td:last-child {
+            border-right: none;
+            /* Remove right border from last cell */
+        }
+
+
+        th {
+            font-weight: 500;
+              background-color: var(--md-sys-color-surface-variant);
+                color: var(--md-sys-color-on-surface);
+
+        }
+
+        tr:hover {
+            background-color: rgba(50, 50, 0, 0.04);
+            /* Light grey background on hover */
+        }
+
+        thead {
+             background-color: rgba(50, 50, 0, 0.04)
+        }
+
+        .md-dialog {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            padding: 16px;
+               background-color: var(--md-sys-color-surface-variant);
+
+        }
+
+        .md-dialog[open] {
+            display: block;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        #userTable {
+            table-layout: fixed;
+        }
+
+        #userTable th:nth-child(1),
+        #userTable td:nth-child(1) {
+            width: 80px;
+            /* Adjust as needed */
+            overflow: hidden;
+        }
+
+        #userTable th:nth-child(2),
+        #userTable td:nth-child(2) {
+            width: 150px;
+            /* Adjust as needed */
+            overflow: hidden;
+        }
+
+        #userTable th:nth-child(3),
+        #userTable td:nth-child(3) {
+            width: 80px;
+            /* Adjust as needed */
+            overflow: hidden;
+        }
+
+        #userTable th:nth-child(4),
+        #userTable td:nth-child(4) {
+            width: 80px;
+            /* Adjust as needed */
+            overflow: hidden;
+        }
+
+        #userTable th:nth-child(5),
+        #userTable td:nth-child(5) {
+            width: 120px;
+            /* Adjust as needed */
+            overflow: hidden;
+        }
+
+        #userTable th:nth-child(6),
+        #userTable td:nth-child(6) {
+            width: 100px;
+            /* Adjust as needed */
+            overflow: hidden;
+        }
+
+        #userTable th:nth-child(7),
+        #userTable td:nth-child(7) {
+            width: 100px;
+            /* Adjust as needed */
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+ <div class="nav-container">
+    <nav class="nav-rail">
+        <a href="/users.html">
+            <md-icon-button class="nav-item" aria-label="Navigation item 1">
+                <span class="material-symbols-rounded">home</span>
+            </md-icon-button>
+        </a>
+        <a href="/teachers.html">
+            <md-icon-button class="nav-item" aria-label="Navigation item 2">
+                <span class="material-symbols-rounded">supervised_user_circle</span>
+            </md-icon-button>
+        </a>
+        <a href="/fees.html">
+            <md-icon-button class="nav-item" aria-label="Navigation item 3">
+                <span class="material-symbols-rounded">checkbook</span>
+            </md-icon-button>
+        </a>
+        <a href="/attendance.html">
+            <md-icon-button class="nav-item" aria-label="Navigation item 4">
+                <span class="material-symbols-rounded">calendar_apps_script</span>
+            </md-icon-button>
+        </a>
+        <a href="#">
+            <md-icon-button class="nav-item" aria-label="Navigation item 5">
+                <span class="material-symbols-rounded">note_stack</span>
+            </md-icon-button>
+        </a>
+        <a href="#">
+            <md-icon-button class="nav-item" aria-label="Navigation item 6">
+                <span class="material-symbols-rounded">note</span>
+            </md-icon-button>
+        </a>
+        <a href="#">
+            <md-icon-button class="nav-item" aria-label="Navigation item 7">
+                <span class="material-symbols-rounded">info</span>
+            </md-icon-button>
+        </a>
+    </nav>     
+    </div>
+
+    <div class="main-content">
+        <div class="table-container">
+            <table id="userTable">
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Name</th>
+                        <th>Class</th>
+                        <th>Section</th>
+                        <th>Phone Number</th>
+                        <th>Password</th>
+                        <th>
+                            <span class="material-symbols-outlined" slot="icon">manage_accounts</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="fab-container">
+        <md-fab aria-label="Search" id="open-search-dialog" mini>
+            <span class="material-symbols-outlined" slot="icon">search</span>
+        </md-fab>
+        <md-fab label="" id="open-dialogue">
+            <span class="material-symbols-outlined" slot="icon">person_add</span>
+        </md-fab>
+    </div>
+    <div class="overlay" id="overlay"></div>
+
+    <div class="dialogue-wrapper" id="edit-dialogue-wrapper">
+        <div class="dialogue">
+            <h2 class="md-typescale-headline-small">Edit User</h2>
+            <form id="edit-user-form">
+                <md-outlined-text-field id="edit-name-field" label="Name" required></md-outlined-text-field>
+                <md-outlined-text-field id="edit-class-field" label="Class" required></md-outlined-text-field>
+                <md-outlined-text-field id="edit-section-field" label="Section" required></md-outlined-text-field>
+                <md-outlined-text-field id="edit-phone-field" label="Phone Number" required type="tel"></md-outlined-text-field>
+                <div class="dialogue-buttons">
+                    <md-outlined-button type="button" id="cancel-edit-dialogue">Cancel</md-outlined-button>
+                    <md-filled-button type="submit">Save</md-filled-button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="dialogue-wrapper" id="add-dialogue-wrapper">
+        <div class="dialogue">
+            <h2 class="md-typescale-headline-small">Add Details</h2>
+            <form id="add-user-form">
+                <md-outlined-text-field id="name-field" label="Name" required></md-outlined-text-field>
+                <md-outlined-text-field id="class-field" label="Class" required></md-outlined-text-field>
+                <md-outlined-text-field id="section-field" label="Section" required></md-outlined-text-field>
+                <md-outlined-text-field id="phone-field" label="Phone Number" required type="tel"></md-outlined-text-field>
+                <div class="dialogue-buttons">
+                    <md-outlined-button type="button" id="cancel-add-dialogue">Cancel</md-outlined-button>
+                    <md-filled-button type="submit">Add</md-filled-button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="dialogue-wrapper" id="search-dialogue-wrapper">
+        <div class="dialogue">
+            <h2 class="md-typescale-headline-small">Search</h2>
+            <form id="search-user-form">
+                <md-outlined-text-field id="search-class-field" label="Class"></md-outlined-text-field>
+                <md-outlined-text-field id="search-section-field" label="Section"></md-outlined-text-field>
+                <div class="dialogue-buttons">
+                    <md-outlined-button type="button" id="cancel-search-dialogue">Cancel</md-outlined-button>
+                    <md-filled-button type="submit">Search</md-filled-button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <md-dialog id="delete-confirm-dialog" style="max-width: 320px;">
+        <div slot="headline">Permanently delete?</div>
+        <md-icon slot="icon">delete_outline</md-icon>
+        <form id="delete-form" slot="content" method="dialog">
+            Deleting the selected user will also remove them from all synced
+            devices.
+        </form>
+        <div slot="actions">
+            <md-text-button form="delete-form" value="delete" style="color: var(--md-sys-color-on-surface);">Delete</md-text-button>
+           <md-text-button form="delete-form" value="cancel" autofocus style="color: var(--md-sys-color-on-surface);">Cancel</md-text-button>
+        </div>
+    </md-dialog>
+
+    <md-dialog id="share-dialog" style="max-width: 320px;">
+        <div slot="headline">Share Information</div>
+        <md-icon slot="icon">share</md-icon>
+        <div slot="content" id="share-message-container"></div>
+         <div slot="actions">
+            <md-text-button id="copy-message-button" style="color: var(--md-sys-color-on-surface);">Copy</md-text-button>
+            <md-text-button id="close-share-dialog">Close</md-text-button>
+        </div>
+    </md-dialog>
+     <md-dialog id="successDialog" style="max-width: 320px;">
+        <div slot="headline" id="successDialogHeadline">Success</div>
+         <md-icon slot="icon">check_circle_outline</md-icon>
+        <div slot="content" id="successDialogContent"></div>
+         <div slot="actions">
+             <md-filled-button onclick="document.getElementById('successDialog').close();">Ok</md-filled-button>
+          </div>
+    </md-dialog>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBaaIPOyxTYNZCi4FnRH3EO7o99kOr3wd8",
+            authDomain: "bhuiyanacademiccare.firebaseapp.com",
+            projectId: "bhuiyanacademiccare",
+            storageBucket: "bhuiyanacademiccare.appspot.com",
+            messagingSenderId: "966548238156",
+            appId: "1:966548238156:web:7b6d298511ec59b67169e9",
+            measurementId: "G-0XKS1KDYKP"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+        const userTableBody = document.getElementById('userTableBody');
+        let editingUserId = null;
+        let deletingUserId = null;
+        const searchDialogueWrapper = document.getElementById('search-dialogue-wrapper');
+        const openSearchDialogueButton = document.getElementById('open-search-dialog');
+        const cancelSearchDialogueButton = document.getElementById('cancel-search-dialogue');
+        const deleteConfirmDialog = document.getElementById('delete-confirm-dialog');
+        const shareDialog = document.getElementById('share-dialog');
+        const copyMessageButton = document.getElementById('copy-message-button');
+        const closeShareDialog = document.getElementById('close-share-dialog');
+         const successDialog = document.getElementById('successDialog');
+
+        let shareUserId = null;
+        closeShareDialog.addEventListener('click', () => {
+            shareDialog.close();
+        });
+
+        copyMessageButton.addEventListener('click', () => {
+            const shareMessageContainer = document.getElementById('share-message-container');
+            const range = document.createRange();
+            range.selectNode(shareMessageContainer);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+            shareDialog.close();
+
+        })
+
+
+
+        openSearchDialogueButton.addEventListener('click', () => {
+            searchDialogueWrapper.style.display = 'flex';
+        });
+        cancelSearchDialogueButton.addEventListener('click', () => {
+            searchDialogueWrapper.style.display = 'none';
+        });
+        searchDialogueWrapper.addEventListener('click', (event) => {
+            if (event.target === searchDialogueWrapper) {
+                searchDialogueWrapper.style.display = 'none';
+            }
+        });
+
+
+        const searchUserForm = document.getElementById('search-user-form');
+        searchUserForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const searchClass = document.getElementById('search-class-field').value.toLowerCase();
+            const searchSection = document.getElementById('search-section-field').value.toLowerCase();
+
+
+            db.collection('users').get().then((snapshot) => {
+                userTableBody.innerHTML = '';
+                snapshot.forEach((doc) => {
+                    const userId = doc.id;
+                    const userData = doc.data();
+                    if (userData.class.toLowerCase().includes(searchClass) && userData.section.toLowerCase().includes(searchSection)) {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                
+                <td>${userId}</td>
+                <td>${userData.name}</td>
+                <td>${userData.class}</td>
+                <td>${userData.section}</td>
+                <td>${userData.phone}</td>
+                <td>${userData.password}</td>
+                <td class="action-icons">
+                   <span class="material-symbols-outlined"  style="cursor:pointer;" onclick="openEditDialog('${userId}')">edit_note</span>
+                  <span class="material-symbols-outlined" style="cursor:pointer;" onclick="confirmDelete('${userId}')">delete_forever</span>
+                 <span class="material-symbols-outlined" style="cursor:pointer;" onclick="openShareDialog('${userId}')">publish</span>
+                </td>
+                `;
+                        userTableBody.appendChild(row);
+                    }
+                });
+                searchDialogueWrapper.style.display = 'none';
+
+            });
+
+
+        });
+
+        function confirmDelete(userId) {
+            deletingUserId = userId;
+            deleteConfirmDialog.show();
+        }
+        deleteConfirmDialog.addEventListener('close', (event) => {
+            if (event.target.returnValue === 'delete') {
+                deleteUser(deletingUserId);
+                deletingUserId = null;
+                showSuccessDialog("User deleted successfully");
+            }
+        });
+
+        function openShareDialog(userId) {
+            shareUserId = userId;
+            db.collection('users').doc(userId).get().then((doc) => {
+                const userData = doc.data();
+                const shareMessageContainer = document.getElementById('share-message-container');
+                shareMessageContainer.innerHTML = `
+                        শিক্ষার্থী ${userData.name} এর ইউজার আইডি হলো ${userId} এবং পাসওয়ার্ড হলো ${userData.password}
+                    `;
+                shareDialog.show();
+
+            });
+        }
+
+        function openEditDialog(userId) {
+            editingUserId = userId;
+            const editDialogueWrapper = document.getElementById('edit-dialogue-wrapper');
+            editDialogueWrapper.style.display = 'flex';
+
+            db.collection('users').doc(userId).get().then((doc) => {
+                const userData = doc.data();
+                document.getElementById('edit-name-field').value = userData.name;
+                document.getElementById('edit-class-field').value = userData.class;
+                document.getElementById('edit-section-field').value = userData.section;
+                document.getElementById('edit-phone-field').value = userData.phone;
+            });
+        }
+
+        const editDialogueWrapper = document.getElementById('edit-dialogue-wrapper');
+        const cancelEditDialogueButton = document.getElementById('cancel-edit-dialogue');
+        cancelEditDialogueButton.addEventListener('click', () => {
+            editDialogueWrapper.style.display = 'none';
+        });
+        editDialogueWrapper.addEventListener('click', (event) => {
+            if (event.target === editDialogueWrapper) {
+                editDialogueWrapper.style.display = 'none';
+            }
+        });
+
+
+        const editUserForm = document.getElementById('edit-user-form');
+        editUserForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const name = document.getElementById('edit-name-field').value;
+            const userClass = document.getElementById('edit-class-field').value;
+            const section = document.getElementById('edit-section-field').value;
+            const phone = document.getElementById('edit-phone-field').value;
+
+
+            db.collection('users').doc(editingUserId).update({
+                name,
+                class: userClass,
+                section,
+                phone,
+            }).then(()=>{
+                 showSuccessDialog("User updated successfully");
+            });
+            editDialogueWrapper.style.display = 'none';
+            editingUserId = null;
+
+        })
+        function deleteUser(userId) {
+            db.collection('users').doc(userId).delete();
+        }
+
+
+
+        db.collection('users').onSnapshot((snapshot) => {
+            userTableBody.innerHTML = '';
+            snapshot.forEach((doc) => {
+                const userId = doc.id;
+                const userData = doc.data();
+                const row = document.createElement('tr');
+                row.innerHTML = `
+
+                <td>${userId}</td>
+                <td>${userData.name}</td>
+                <td>${userData.class}</td>
+                <td>${userData.section}</td>
+                <td>${userData.phone}</td>
+                <td>${userData.password}</td>
+                <td class="action-icons">
+                   <span class="material-symbols-outlined"  style="cursor:pointer;" onclick="openEditDialog('${userId}')">edit_note</span>
+                  <span class="material-symbols-outlined" style="cursor:pointer;" onclick="confirmDelete('${userId}')">delete_forever</span>
+                 <span class="material-symbols-outlined" style="cursor:pointer;" onclick="openShareDialog('${userId}')">publish</span>
+                </td>
+
+    `;
+                userTableBody.appendChild(row);
+            });
+        });
+
+        function generatePassword() {
+            return Math.floor(Math.random() * 9000) + 1000;
+        }
+
+        const openDialogueButton = document.getElementById('open-dialogue');
+        const addDialogueWrapper = document.getElementById('add-dialogue-wrapper');
+        const cancelDialogueButton = document.getElementById('cancel-add-dialogue');
+
+        openDialogueButton.addEventListener('click', () => {
+            addDialogueWrapper.style.display = 'flex';
+        });
+
+        cancelDialogueButton.addEventListener('click', () => {
+            addDialogueWrapper.style.display = 'none';
+        });
+
+        addDialogueWrapper.addEventListener('click', (event) => {
+            if (event.target === addDialogueWrapper) {
+                addDialogueWrapper.style.display = 'none';
+            }
+        });
+
+        const addUserForm = document.getElementById('add-user-form');
+        addUserForm.addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent default form submission
+
+            const name = document.getElementById('name-field').value;
+            const userClass = document.getElementById('class-field').value;
+            const section = document.getElementById('section-field').value;
+            const phone = document.getElementById('phone-field').value;
+            const password = generatePassword();
+
+
+            db.collection('metadata').doc('lastUserId').get().then((doc) => {
+                let lastUserId;
+                if (doc.exists) {
+                    lastUserId = doc.data().value;
+                } else {
+                    lastUserId = 1000;
+                }
+                const userId = lastUserId + 1;
+                const userData = {
+                    name: name,
+                    class: userClass,
+                    section: section,
+                    phone: phone,
+                    password: password
+                };
+
+                db.collection('users').doc(userId.toString()).set(userData)
+                    .then(() => {
+                        db.collection('metadata').doc('lastUserId').set({
+                            value: userId
+                        });
+                            showSuccessDialog("User added successfully");
+                        console.log("User added successfully!");
+                        addDialogueWrapper.style.display = 'none'; // Close the dialog
+                        addUserForm.reset(); // Clear the form fields
+                    })
+                    .catch((error) => {
+                        console.error("Error adding user: ", error);
+                    });
+
+            });
+        });
+          // Function to display success messages
+        function showSuccessDialog(message){
+            document.getElementById('successDialogContent').textContent = message;
+            successDialog.show();
+        }
+    </script>
+</body>
+
+</html>
